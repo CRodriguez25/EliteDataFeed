@@ -1,0 +1,9 @@
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\bin\Release\netstandard2.0\EliteDangerousDataFeed.deps.json
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\bin\Release\netstandard2.0\EliteDangerousDataFeed.dll
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\bin\Release\netstandard2.0\EliteDangerousDataFeed.pdb
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\obj\Release\netstandard2.0\EliteDangerousDataFeed.csprojResolveAssemblyReference.cache
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\obj\Release\netstandard2.0\EliteDangerousDataFeed.csproj.CoreCompileInputs.cache
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\obj\Release\netstandard2.0\EliteDangerousDataFeed.AssemblyInfoInputs.cache
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\obj\Release\netstandard2.0\EliteDangerousDataFeed.AssemblyInfo.cs
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\obj\Release\netstandard2.0\EliteDangerousDataFeed.dll
+c:\users\carlos\documents\visual studio 2017\Projects\EliteDangerousDataFeed\EliteDangerousDataFeed\obj\Release\netstandard2.0\EliteDangerousDataFeed.pdb
