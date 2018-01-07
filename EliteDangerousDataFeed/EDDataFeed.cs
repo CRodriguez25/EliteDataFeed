@@ -13,6 +13,7 @@ namespace EliteDangerousDataFeed
     {
         private string _currentFile = null;
         private DateTime _lastSentEntry = DateTime.MinValue;
+        private FileSystemWatcher _watcher;
 
         public IEnumerable<DataFeedSettingDeclaration> RequiredSettings()
         {
@@ -20,8 +21,9 @@ namespace EliteDangerousDataFeed
             {
                 new DataFeedSettingDeclaration
                 {
-                    SettingDescription = "Please provide the location of your Elite Dangerous Journal Files",
+                    DisplayRequestForSetting = "Please provide the location of your Elite Dangerous Journal Files",
                     SettingName = "JournalLocation",
+                    DefaultValue = "%UserProfile%\\Saved Games\\Frontier Developments\\Elite Dangerous",
                     SettingType = SettingType.Directory
                 }
             };
@@ -29,28 +31,35 @@ namespace EliteDangerousDataFeed
 
         public void Start(IDataFeedContext dataFeedContext, IPanelCommunicator panelCommunicator)
         {
+            
             var journalLocation = dataFeedContext.GetSettings()["JournalLocation"].SettingValue;
+            journalLocation = Environment.ExpandEnvironmentVariables(journalLocation);
             while(true)
             {
                 try
                 {
-                    var allJournalEntries = Directory.GetFiles(journalLocation).OrderByDescending(x => x);
-                    if (_currentFile == null)
-                    {
-                        _currentFile = allJournalEntries.First();
-                    }
-                    else CheckForNewJournalFile(allJournalEntries);
-
-                    var newEntries = GetNewEntries();
-                    foreach (var entry in newEntries)
-                    {
-                        panelCommunicator.SendMessageToPanel(entry);
-                        _lastSentEntry = entry.timestamp;
-                    }
+                    GetUpdates(panelCommunicator, journalLocation);
                 }
                 catch(Exception e) { }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(250);
+            }
+        }
+
+        private void GetUpdates(IPanelCommunicator panelCommunicator, string journalLocation)
+        {
+            var allJournalEntries = Directory.GetFiles(journalLocation).OrderByDescending(x => x);
+            if (_currentFile == null)
+            {
+                _currentFile = allJournalEntries.First();
+            }
+            else CheckForNewJournalFile(allJournalEntries);
+
+            var newEntries = GetNewEntries();
+            foreach (var entry in newEntries)
+            {
+                panelCommunicator.SendMessageToPanel(entry);
+                _lastSentEntry = entry.timestamp;
             }
         }
 
