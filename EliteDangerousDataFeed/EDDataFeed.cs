@@ -48,7 +48,7 @@ namespace EliteDangerousDataFeed
 
         private void GetUpdates(IPanelCommunicator panelCommunicator, string journalLocation)
         {
-            var allJournalEntries = Directory.GetFiles(journalLocation).OrderByDescending(x => x);
+            var allJournalEntries = Directory.GetFiles(journalLocation, "Journal*").OrderByDescending(x => x);
             if (_currentFile == null)
             {
                 _currentFile = allJournalEntries.First();
