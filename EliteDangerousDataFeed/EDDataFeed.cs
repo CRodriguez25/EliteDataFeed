@@ -9,13 +9,12 @@ using System.Threading;
 
 namespace EliteDangerousDataFeed
 {
-    public class EDDataFeed : IDataFeed
+    public class EDDataFeed : DataFeed
     {
         private string _currentFile = null;
         private DateTime _lastSentEntry = DateTime.MinValue;
-        private FileSystemWatcher _watcher;
 
-        public IEnumerable<DataFeedSettingDeclaration> RequiredSettings()
+        public override IEnumerable<DataFeedSettingDeclaration> RequiredSettings()
         {
             return new List<DataFeedSettingDeclaration>
             {
@@ -29,9 +28,8 @@ namespace EliteDangerousDataFeed
             };
         }
 
-        public void Start(IDataFeedContext dataFeedContext, IPanelCommunicator panelCommunicator)
+        public override void Start(IDataFeedContext dataFeedContext, IPanelCommunicator panelCommunicator)
         {
-            
             var journalLocation = dataFeedContext.GetSettings()["JournalLocation"].SettingValue;
             journalLocation = Environment.ExpandEnvironmentVariables(journalLocation);
             while(true)
@@ -58,7 +56,7 @@ namespace EliteDangerousDataFeed
             var newEntries = GetNewEntries();
             foreach (var entry in newEntries)
             {
-                panelCommunicator.SendMessageToPanel(entry);
+                panelCommunicator.SendMessageToPanel(entry.Raw.ToString());
                 _lastSentEntry = entry.timestamp;
             }
         }
@@ -82,7 +80,12 @@ namespace EliteDangerousDataFeed
                 }
             }
 
-            var events = fileLines.Select(x => JsonConvert.DeserializeObject<dynamic>(x)).Where(x => x != null).OrderByDescending(x => x.timestamp);
+            var events = fileLines.Select(x => {
+                var result = JsonConvert.DeserializeObject<dynamic>(x);
+                if (result == null) return null;
+                result.Raw = x;
+                return result;
+            }).Where(x => x != null).OrderByDescending(x => x.timestamp);
 
             if (!events.Any())
             {
@@ -97,6 +100,11 @@ namespace EliteDangerousDataFeed
             }
 
             return events.Where(x => x.timestamp > _lastSentEntry).OrderByDescending(x => x.timestamp);
+        }
+
+        public override void DataFeedUnloaded()
+        {
+
         }
     }
 }
