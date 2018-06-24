@@ -13,7 +13,8 @@ namespace EliteDangerousDataFeed
     {
         private string _currentFile = null;
         private DateTime _lastSentEntry = DateTime.MinValue;
-
+        private DateTime _lastStatusUpdate = DateTime.MinValue;
+        private StatusGenerator _statusGenerator = new StatusGenerator();
         public override IEnumerable<DataFeedSettingDeclaration> RequiredSettings()
         {
             return new List<DataFeedSettingDeclaration>
@@ -36,7 +37,8 @@ namespace EliteDangerousDataFeed
             {
                 try
                 {
-                    GetUpdates(panelCommunicator, journalLocation);
+                    GetJournalUpdates(panelCommunicator, journalLocation);
+                    GetStatusUpdates(panelCommunicator, journalLocation);
                 }
                 catch(Exception e) { }
 
@@ -44,7 +46,38 @@ namespace EliteDangerousDataFeed
             }
         }
 
-        private void GetUpdates(IPanelCommunicator panelCommunicator, string journalLocation)
+        private void GetStatusUpdates(IPanelCommunicator panelCommunicator, string journalLocation)
+        {
+            var fileName = Path.Combine(journalLocation, "Status.json");
+            if (!File.Exists(fileName)) return;
+
+            var lastWriteTime = File.GetLastWriteTime(fileName);
+            if (lastWriteTime > _lastStatusUpdate)
+            {
+                using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader fileReader = new StreamReader(fileStream))
+                {
+                    while (!fileReader.EndOfStream)
+                    {
+                        var text = fileReader.ReadToEnd();
+                        var statusObject = JsonConvert.DeserializeObject<dynamic>(text);
+                        Dictionary<string, bool> statusResult = _statusGenerator.GenerateStatus((int)statusObject.Flags);
+                        var status = new StatusResult
+                        {
+                            Event = "Status",
+                            CurrentStatus = statusResult
+                        };
+
+                        var serializedStatus = JsonConvert.SerializeObject(status);
+                        panelCommunicator.SendMessageToPanel(serializedStatus);
+                    }
+                }
+
+                _lastStatusUpdate = lastWriteTime;
+            }
+        }
+
+        private void GetJournalUpdates(IPanelCommunicator panelCommunicator, string journalLocation)
         {
             var allJournalEntries = Directory.GetFiles(journalLocation, "Journal*").OrderByDescending(x => x);
             if (_currentFile == null)
